@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+text.txt
+text_filtered.txt
 *.zip
 # C extensions
 *.so
