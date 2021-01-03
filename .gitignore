@@ -5,6 +5,8 @@ __pycache__/
 
 text.txt
 text_filtered.txt
+config.py
+
 *.zip
 # C extensions
 *.so

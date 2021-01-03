@@ -2,8 +2,11 @@
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 import time
+import lyricsgenius, config
 DRIVER_PATH = r"C:\Program Files (x86)\chromedriver.exe"
-driver = webdriver.Chrome(executable_path=DRIVER_PATH)
+op = webdriver.ChromeOptions()
+op.add_argument('headless')
+driver = webdriver.Chrome(executable_path=DRIVER_PATH, options=op)
 
 """ useful attribute:
         element.tag_name
@@ -23,7 +26,6 @@ def mulanciGetLyric(name):
     link_div = driver.find_element_by_class_name('gs-title')
     link_a = link_div.find_element_by_class_name('gs-title')
     link = link_a.get_attribute("data-ctorig")
-    print(link)
     #driver.close()
     driver.get(link)
     try:
@@ -35,6 +37,32 @@ def mulanciGetLyric(name):
         content = ""
     driver.close()
     return content
+
+def kugeciGetLyric(name):
+    url = "https://www.kugeci.com/search?q="
+
+    driver.get(url+name)
+    try:
+        link_a = driver.find_element_by_css_selector('#tablesort tbody tr td a')
+        link = link_a.get_attribute("href")
+        driver.get(link)
+        content_div = driver.find_element_by_id("lyricsContainer")
+        content = content_div.text
+        exportText("text.txt", content)
+    except NoSuchElementException:
+        print("Can't find lyric")
+        content = ""
+    driver.close()
+    return content
+
+def geniusGetLyric(name):
+    """ Using lyricsgenius wrapper to get lyrics from genius """
+    genius = lyricsgenius.Genius(config.ACCESS_TOKEN)
+    song = genius.search_song(name)
+    #print(song)
+    if song:
+        return song.lyrics
+    return ""
 
 def filterLyric(lyrics, method=1):
     """ filter out unwanted text in the lyric list
@@ -57,37 +85,21 @@ def filterLyric(lyrics, method=1):
         #list comprehension, for lyric in lyrics, if lyric start with '[', remove the first 9 characters
         # else lyric remains same
         lyrics = [lyric[10:] if lyric[0] == '[' else lyric for lyric in lyrics]
-    exportText("text_filtered.txt", "\n".join(lyrics))
-    return lyrics
-
-def kugeciGetLyric(name):
-    url = "https://www.kugeci.com/search?q="
-
-    driver.get(url+name)
-    try:
-        link_a = driver.find_element_by_css_selector('#tablesort tbody tr td a')
-        link = link_a.get_attribute("href")
-        driver.get(link)
-        content_div = driver.find_element_by_id("lyricsContainer")
-        content = content_div.text
-        exportText("text.txt", content)
-    except NoSuchElementException:
-        print("Can't find lyric")
-        content = ""
-    driver.close()
-    return content
+    return "\n".join(lyrics)
 
 def getLyric(name, method):
     """ wrapper for different site scrap"""
     lyric = ""
-    if method == 1:
+    if method == 1: #mulanci search
         lyric = mulanciGetLyric(name)
-    elif method == 2:
+    elif method == 2: #kugeci search
         lyric = kugeciGetLyric(name)
-
     if lyric != "":
         lyric = lyric.split("\n")
         lyric = filterLyric(lyric, method=method)
-name = "why you gonna lie"
+    if method == 3: #genius search
+        lyric = geniusGetLyric(name)
+    exportText("text_filtered.txt", lyric)
+name = "Best part"
 
-getLyric(name, 2)
+getLyric(name, 3)
