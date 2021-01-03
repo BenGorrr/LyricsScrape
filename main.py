@@ -5,6 +5,12 @@ import time
 DRIVER_PATH = r"C:\Program Files (x86)\chromedriver.exe"
 driver = webdriver.Chrome(executable_path=DRIVER_PATH)
 
+""" useful attribute:
+        element.tag_name
+        element.text
+        element.get_attribute('value')
+"""
+
 def exportText(filename, text):
     with open(filename, mode='w', encoding="utf-8") as file:
         file.write(text)
@@ -47,11 +53,29 @@ def filterLyric(lyrics):
     exportText("text_filtered.txt", "\n".join(lyrics))
     return lyrics
 
+def kugeciGetLyric(name):
+    url = "https://www.kugeci.com/search?q="
 
+    driver.get(url+name)
+
+    link = driver.find_element_by_css_selector('#tablesort tbody tr td a')
+    print(link.get_attribute("href"))
+    driver.close()
+    # driver.get(link)
+    # try:
+    #     content_div = driver.find_element_by_id('lyric-content')
+    #     content = content_div.text
+    #     exportText("text.txt", content)
+    # except NoSuchElementException:
+    #     print("Can't find lyric")
+    #     content = ""
+    # driver.close()
+    # return content
 
 name = "真的傻"
 
-lyric = mulanciGetLyric(name)
-if lyric != "":
-    lyric = lyric.split("\n")
-    lyric = filterLyric(lyric)
+lyric = kugeciGetLyric(name)
+# lyric = mulanciGetLyric(name)
+# if lyric != "":
+#     lyric = lyric.split("\n")
+#     lyric = filterLyric(lyric)
