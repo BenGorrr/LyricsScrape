@@ -57,7 +57,7 @@ def kugeciGetLyric(name):
 
 def geniusGetLyric(name):
     """ Using lyricsgenius wrapper to get lyrics from genius """
-    genius = lyricsgenius.Genius(config.ACCESS_TOKEN)
+    genius = lyricsgenius.Genius(config.GENIUS_ACCESS_TOKEN)
     song = genius.search_song(name)
     #print(song)
     if song:
@@ -100,6 +100,8 @@ def getLyric(name, method):
     if method == 3: #genius search
         lyric = geniusGetLyric(name)
     exportText("text_filtered.txt", lyric)
-name = "Best part"
+    return lyric
 
-getLyric(name, 3)
+if __name__ == '__main__':
+    name = "Best part"
+    getLyric(name, 3)
